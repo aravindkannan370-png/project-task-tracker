@@ -5,42 +5,47 @@ import { jsonError } from "@/lib/http";
 import { loginSchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
-  const payload = await request.json().catch(() => null);
-  const result = loginSchema.safeParse(payload);
+  try {
+    const payload = await request.json().catch(() => null);
+    const result = loginSchema.safeParse(payload);
 
-  if (!result.success) {
-    return jsonError(result.error.issues[0]?.message ?? "Invalid login payload");
-  }
+    if (!result.success) {
+      return jsonError(result.error.issues[0]?.message ?? "Invalid login payload");
+    }
 
-  const user = await prisma.user.findUnique({
-    where: { email: result.data.email }
-  });
+    const user = await prisma.user.findUnique({
+      where: { email: result.data.email }
+    });
 
-  if (!user) {
-    return jsonError("Invalid credentials", 401);
-  }
+    if (!user) {
+      return jsonError("Invalid credentials", 401);
+    }
 
-  const isValid = await verifyPassword(result.data.password, user.passwordHash);
-  if (!isValid) {
-    return jsonError("Invalid credentials", 401);
-  }
+    const isValid = await verifyPassword(result.data.password, user.passwordHash);
+    if (!isValid) {
+      return jsonError("Invalid credentials", 401);
+    }
 
-  const token = signSession({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role
-  });
-
-  const response = NextResponse.json({
-    user: {
+    const token = signSession({
       id: user.id,
       name: user.name,
       email: user.email,
       role: user.role
-    }
-  });
+    });
 
-  response.cookies.set(createAuthCookie(token));
-  return response;
+    const response = NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+    response.cookies.set(createAuthCookie(token));
+    return response;
+  } catch (error) {
+    console.error("Login failed", error);
+    return jsonError("Unable to sign in right now. Please try again.", 500);
+  }
 }

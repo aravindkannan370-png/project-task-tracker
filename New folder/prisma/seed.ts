@@ -3,6 +3,11 @@ import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 
 async function main() {
+  const userCount = await prisma.user.count();
+  if (userCount > 0) {
+    return;
+  }
+
   const adminPassword = await hashPassword("Admin123!");
   const memberPassword = await hashPassword("Member123!");
 
@@ -64,8 +69,7 @@ async function main() {
         priority: 2,
         dueDate: new Date(Date.now() - 1000 * 60 * 60 * 24)
       }
-    ],
-    skipDuplicates: true
+    ]
   });
 }
 

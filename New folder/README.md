@@ -30,8 +30,9 @@ A Next.js app for managing projects, assigning tasks, and tracking progress with
 
 ## Railway Deployment
 - Set `DATABASE_URL` and `JWT_SECRET` in Railway.
-- Run `npm run prisma:deploy` during the deploy process.
+- Run `npm run prisma:deploy` and `npm run seed` during the deploy process so the schema and demo data are ready before the app starts.
 - Start command: `npm run start`
+- Demo credentials after seeding: `admin@tracker.dev` / `Admin123!` and `member@tracker.dev` / `Member123!`
 
 ## Notes
 - Local development uses PostgreSQL through `DATABASE_URL`.
