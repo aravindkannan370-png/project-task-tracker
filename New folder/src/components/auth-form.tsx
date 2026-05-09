@@ -39,7 +39,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         }
       })() : undefined;
 
-      setError(parsedError ?? responseText || "Unable to sign in right now. Please try again.");
+      setError(parsedError ?? (responseText || "Unable to sign in right now. Please try again."));
       return;
     }
 
