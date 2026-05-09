@@ -30,8 +30,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     setLoading(false);
 
     if (!response.ok) {
-      const data = await response.json().catch(() => null);
-      setError(data?.error ?? "Something went wrong");
+      const responseText = await response.text().catch(() => "");
+      const parsedError = responseText ? (() => {
+        try {
+          return JSON.parse(responseText)?.error as string | undefined;
+        } catch {
+          return undefined;
+        }
+      })() : undefined;
+
+      setError(parsedError ?? responseText || "Unable to sign in right now. Please try again.");
       return;
     }
 
